@@ -1,6 +1,3 @@
-from __future__ import generator_stop
-
-import typing  # noqa: F401
 from typing import Dict, Optional, Set, Iterable, Iterator
 
 from openpyxl import load_workbook
@@ -96,10 +93,3 @@ class Cell:
             c = Cell(self.cell.parent[coords])
             cellcache[coords] = c
         return c
-
-
-wb = load_workbook('test.xlsx')
-
-sheet = wb.active
-cell = sheet['H4']
-mycell = Cell(cell)
