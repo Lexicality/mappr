@@ -14,11 +14,6 @@ from openpyxl.worksheet import Worksheet as xlSheet
 cellcache: Dict[str, 'Cell'] = {}
 
 
-def _valid_coord(sheet: xlSheet, x: int, y: int) -> bool:
-    # Note that column 1 is the data column
-    return (2 <= x and x <= sheet.max_column) and (1 <= y and y <= sheet.max_row)
-
-
 class Cell:
     class Coords(Iterable):
         def __init__(self, parent: 'Cell') -> None:
@@ -59,9 +54,10 @@ class Cell:
         def __iter__(self) -> Iterator['Cell']:
             return iter([self.N, self.NE, self.E, self.SE, self.S, self.SW, self.W, self.NW])
 
-    def __init__(self, cell: xlCell) -> None:
+    def __init__(self, cell: xlCell, cache: Dict[str, 'Cell'] = cellcache) -> None:
         self.cell = cell
         self.neighbours = Cell.Coords(self)
+        self.cache = cache
 
     def is_void(self) -> bool:
         return (
@@ -87,14 +83,19 @@ class Cell:
 
         return found
 
+    def _valid_coord(self, x: int, y: int) -> bool:
+        sheet: xlSheet = self.cell.parent
+        # Note that column 1 is the data column
+        return (2 <= x and x <= sheet.max_column) and (1 <= y and y <= sheet.max_row)
+
     def _get_neighbour(self, x: int, y: int) -> Optional['Cell']:
         col = self.cell.col_idx + x
         row = self.cell.row + y
-        if not _valid_coord(self.cell.parent, row, col):
+        if not self._valid_coord(row, col):
             return None
         coords = "{col}{row}".format(col=get_column_letter(col), row=row)
-        c = cellcache.get(coords)
+        c = self.cache.get(coords)
         if not c:
             c = Cell(self.cell.parent[coords])
-            cellcache[coords] = c
+            self.cache[coords] = c
         return c
