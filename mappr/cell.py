@@ -1,6 +1,11 @@
-from typing import Dict, Optional, Set, Iterable, Iterator
+from typing import (
+    Dict,
+    Iterable,
+    Iterator,
+    Optional,
+    Set,
+)
 
-from openpyxl import load_workbook
 from openpyxl.cell import Cell as xlCell
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet import Worksheet as xlSheet
